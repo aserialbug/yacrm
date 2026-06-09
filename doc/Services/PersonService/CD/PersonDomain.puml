@@ -11,8 +11,8 @@ abstract class EntityId <<ValueObject>> {
     -_value: Guid
 
     #EntityId(value: Guid)
-    +override bool Equals(obj: Object)
-    +override int GetHashCode()
+    +override Equals(obj: Object): bool
+    +override GetHashCode(): int
 }
 
 note right of EntityId
@@ -24,8 +24,8 @@ end note
 
 class PersonId <<ValueObject>> {
     -PersonId(value: Guid)
-    +{static} PersonId Create(value: Guid)
-    +{static} PersonId New()
+    +{static} Create(value: Guid): PersonId
+    +{static} New(): PersonId
 }
 
 EntityId <|-- PersonId : наследуется
@@ -46,9 +46,9 @@ class Person <<Entity<PersonId>> {
     +Phone: Phone
   
    -Person()
-    +{static} Person Create(\n\tfirstName: FirstName,\n\tmiddleName: MiddleName,\n\tlastName: LastName,\n\tphone: Phone,\n\temail: Email,\n\tsocialLink: SocialLink)
-    +override bool Equals(obj: Object)
-    +override int GetHashCode()
+    +{static} Create(\n\tfirstName: FirstName,\n\tmiddleName: MiddleName,\n\tlastName: LastName,\n\tphone: Phone,\n\temail: Email,\n\tsocialLink: SocialLink): Person
+    +override Equals(obj: Object): bool
+    +override GetHashCode(): int
 }
 
 Entity <|-- Person : наследуется
@@ -68,27 +68,27 @@ class FirstName <<ValueObject>> {
     -_value: string
 
     -FirstName(value: string)
-    +{static} FirstName Create(value string)
-    +override bool Equals(obj: object)
-    +override int GetHashCode()
+    +{static} Create(value string): FirstName
+    +override Equals(obj: Object): bool
+    +override GetHashCode(): int
 }
 
 class MiddleName <<ValueObject>> {
     -_value: string
 
     -MiddleName(value: string)
-    +{static} MiddleName Create(value: string)
-    +override bool Equals(obj: object)
-    +override int GetHashCode()
+    +{static} Create(value: string): MiddleName
+    +override Equals(obj: Object): bool
+    +override GetHashCode(): int
 }
 
 class LastName <<ValueObject>> {
     -_value: string
 
     -LastName(value: string)
-    +{static} LastName Create(value: string)
-    +override bool Equals(obj: object)
-    +override int GetHashCode()
+    +{static} Create(value: string): LastName
+    +override Equals(obj: Object): bool
+    +override GetHashCode(): int
 }
 
 ' Объекты-значения для контактов
@@ -96,28 +96,27 @@ class SocialLink <<ValueObject>> {
     -_value: string
 
     -SocialLink(value: string)
-    +{static} SocialLink Create(value: string)
-    +{static} SocialLink Empty()
-    +override bool Equals(obj: object)
-    +override int GetHashCode()
+    +{static} Create(value: string): SocialLink
+    +override Equals(obj: Object): bool
+    +override GetHashCode(): int
 }
 
 class Email <<ValueObject>> {
     -_value: string
 
     -Email(value: string)
-    +{static} Email Create(value: string)
-    +override bool Equals(obj: object)
-    +override int GetHashCode()
+    +{static} Create(value: string): Email
+    +override Equals(obj: Object): bool
+    +override GetHashCode(): int
 }
 
 class Phone <<ValueObject>> {
     -_value: string
 
     -Phone(value: string)
-    +{static} Phone Create(value: string)
-    +override bool Equals(obj: object)
-    +override int GetHashCode()
+    +{static} Create(value: string): Phone
+    +override Equals(obj: Object): bool
+    +override GetHashCode(): int
 }
 
 ' Примечания для объектов-значений
