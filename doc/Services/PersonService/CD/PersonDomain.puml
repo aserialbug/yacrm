@@ -1,0 +1,206 @@
+@startuml Person Domain Layer
+title PersonService.Domain - Доменный слой (ADR 004, PR 001)
+
+' ============================================
+' ДОМЕННЫЙ СЛОЙ (PersonService.Domain)
+' Не зависит от других слоёв
+' ============================================
+
+' Базовый абстрактный класс для идентификаторов сущностей
+abstract class EntityId <<ValueObject>> {
+    -_value: Guid
+
+    #EntityId(value: Guid)
+    +override bool Equals(obj: Object)
+    +override int GetHashCode()
+}
+
+note right of EntityId
+  **Базовый класс идентификатора:**
+  - Абстрактный класс для всех ID сущностей
+  - Protected конструктор
+  - Валидирует: не пустой GUID
+end note
+
+class PersonId <<ValueObject>> {
+    -PersonId(value: Guid)
+    +{static} PersonId Create(value: Guid)
+    +{static} PersonId New()
+}
+
+EntityId <|-- PersonId : наследуется
+
+abstract class Entity<TId> <<Entity>> {
+    #Id: TId
+    #CreatedAt: DateTime
+    #UpdatedAt: DateTime
+    #Entity(id: TId)
+}
+
+class Person <<Entity<PersonId>> {
+    +FirstName: FirstName
+    +MiddleName: MiddleName
+    +LastName: LastName
+    +SocialLink: SocialLink
+    +Email: Email
+    +Phone: Phone
+  
+   -Person()
+    +{static} Person Create(\n\tfirstName: FirstName,\n\tmiddleName: MiddleName,\n\tlastName: LastName,\n\tphone: Phone,\n\temail: Email,\n\tsocialLink: SocialLink)
+    +override bool Equals(obj: Object)
+    +override int GetHashCode()
+}
+
+Entity <|-- Person : наследуется
+
+
+note right of Person
+  **Сущность (Entity):**
+  - Уникальный идентификатор (PersonId)
+  - Protected конструктор
+  - Фабричный метод Create() генерирует Id и заполняет CreatedAt/UpdatedAt
+  - Наследуется от обобщенного Entity&lt;TId&gt;
+  - Содержит: FirstName, MiddleName, LastName, Phone, Email, SocialLink
+end note
+
+' Объекты-значения (Value Objects) для имени
+class FirstName <<ValueObject>> {
+    -_value: string
+
+    -FirstName(value: string)
+    +{static} FirstName Create(value string)
+    +override bool Equals(obj: object)
+    +override int GetHashCode()
+}
+
+class MiddleName <<ValueObject>> {
+    -_value: string
+
+    -MiddleName(value: string)
+    +{static} MiddleName Create(value: string)
+    +override bool Equals(obj: object)
+    +override int GetHashCode()
+}
+
+class LastName <<ValueObject>> {
+    -_value: string
+
+    -LastName(value: string)
+    +{static} LastName Create(value: string)
+    +override bool Equals(obj: object)
+    +override int GetHashCode()
+}
+
+' Объекты-значения для контактов
+class SocialLink <<ValueObject>> {
+    -_value: string
+
+    -SocialLink(value: string)
+    +{static} SocialLink Create(value: string)
+    +{static} SocialLink Empty()
+    +override bool Equals(obj: object)
+    +override int GetHashCode()
+}
+
+class Email <<ValueObject>> {
+    -_value: string
+
+    -Email(value: string)
+    +{static} Email Create(value: string)
+    +override bool Equals(obj: object)
+    +override int GetHashCode()
+}
+
+class Phone <<ValueObject>> {
+    -_value: string
+
+    -Phone(value: string)
+    +{static} Phone Create(value: string)
+    +override bool Equals(obj: object)
+    +override int GetHashCode()
+}
+
+' Примечания для объектов-значений
+note right of FirstName
+  **Объект-значение:**
+  - Имя человека (1-50 символов)
+  - Приватный конструктор
+  - Фабричный метод Create()
+  - Валидация в фабричном методе
+  - Неизменяем (immutable)
+end note
+
+note right of MiddleName
+  **Объект-значение:**
+  - Отчество (макс. 50 символов)
+  - Опциональное поле
+  - Приватный конструктор
+  - Фабричные методы Create()
+  - Валидация в фабричном методе
+  - Неизменяем (immutable)
+end note
+
+note right of LastName
+  **Объект-значение:**
+  - Фамилия (1-50 символов)
+  - Приватный конструктор
+  - Фабричный метод Create()
+  - Валидация в фабричном методе
+  - Неизменяем (immutable)
+end note
+
+note right of SocialLink
+  **Объект-значение:**
+  - Ссылка на соцсеть (макс. 255 символов)
+  - Опциональное поле
+  - Приватный конструктор
+  - Фабричные методы Create()
+  - Валидирует формат URI
+  - Неизменяем (immutable)
+end note
+
+note right of Email
+  **Объект-значение:**
+  - Email (5-25 символов)
+  - Опциональное поле
+  - Приватный конструктор
+  - Фабричные методы Create()
+  - Валидирует формат email
+  - Неизменяем (immutable)
+end note
+
+note right of Phone
+  **Объект-значение:**
+  - Телефон (5-12 цифр)
+  - Обязательное поле
+  - Приватный конструктор
+  - Фабричный метод Create()
+  - Только цифры
+  - Неизменяем (immutable)
+end note
+
+' Связи композиции
+Person "1" *-- "1" FirstName : содержит
+Person "0..1" *-- "0..1" MiddleName : содержит
+Person "1" *-- "1" LastName : содержит
+Person "0..1" *-- "0..1" SocialLink : содержит
+Person "0..1" *-- "0..1" Email : содержит
+Person "1" *-- "1" Phone : содержит
+
+' Стили
+skinparam class {
+    BackgroundColor White
+    BorderColor Black
+}
+skinparam stereotypeC {
+    FontColor #0066CC
+    FontStyle italic
+}
+
+legend right
+  |Стереотип|Описание|
+  |<<Entity>>|Сущность с уникальным ID|
+  |<<ValueObject>>|Неизменяемое значение с фабричным методом|
+endlegend
+
+@enduml
