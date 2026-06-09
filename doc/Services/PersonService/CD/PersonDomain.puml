@@ -13,6 +13,7 @@ abstract class EntityId <<ValueObject>> {
     #EntityId(value: Guid)
     +override Equals(obj: Object): bool
     +override GetHashCode(): int
+    +override ToString(): string
 }
 
 note right of EntityId
@@ -24,7 +25,7 @@ end note
 
 class PersonId <<ValueObject>> {
     -PersonId(value: Guid)
-    +{static} Create(value: Guid): PersonId
+    +{static} FromString(value: Guid): PersonId
     +{static} New(): PersonId
 }
 
@@ -35,6 +36,7 @@ abstract class Entity<TId> <<Entity>> {
     #CreatedAt: DateTime
     #UpdatedAt: DateTime
     #Entity(id: TId)
+    +override ToString(): string
 }
 
 class Person <<Entity<PersonId>> {
@@ -68,55 +70,61 @@ class FirstName <<ValueObject>> {
     -_value: string
 
     -FirstName(value: string)
-    +{static} Create(value string): FirstName
+    +{static} FromString(value string): FirstName
     +override Equals(obj: Object): bool
     +override GetHashCode(): int
+    +override ToString(): string
 }
 
 class MiddleName <<ValueObject>> {
     -_value: string
 
     -MiddleName(value: string)
-    +{static} Create(value: string): MiddleName
+    +{static} FromString(value: string): MiddleName
     +override Equals(obj: Object): bool
     +override GetHashCode(): int
+    +override ToString(): string
 }
 
 class LastName <<ValueObject>> {
     -_value: string
 
     -LastName(value: string)
-    +{static} Create(value: string): LastName
+    +{static} FromString(value: string): LastName
     +override Equals(obj: Object): bool
     +override GetHashCode(): int
+    +override ToString(): string
 }
 
 ' Объекты-значения для контактов
 class SocialLink <<ValueObject>> {
-    -_value: string
+    -_value: Uri
 
-    -SocialLink(value: string)
-    +{static} Create(value: string): SocialLink
+    -SocialLink(value: Uri)
+    +{static} FromString(value: string): SocialLink
     +override Equals(obj: Object): bool
     +override GetHashCode(): int
+    +override ToString(): string
 }
 
 class Email <<ValueObject>> {
     -_value: string
 
     -Email(value: string)
-    +{static} Create(value: string): Email
+    +{static} FromString(value: string): Email
     +override Equals(obj: Object): bool
     +override GetHashCode(): int
+    +override ToString(): string
 }
 
 class Phone <<ValueObject>> {
     -_value: string
 
     -Phone(value: string)
-    +{static} Create(value: string): Phone
+    +{static} FromString(value: string): Phone
     +override Equals(obj: Object): bool
     +override GetHashCode(): int
+    +override ToString(): string
 }
 
 ' Примечания для объектов-значений
