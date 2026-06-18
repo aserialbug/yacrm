@@ -1,0 +1,361 @@
+openapi: 3.1.0
+info:
+  title: PersonService API
+  description: |
+    REST API сервиса PersonService для управления информацией о людях.
+    
+    Соответствует требованиям:
+    - [PR 001](../PR/PR%20001%20Person%20entity.md) - Сущность Person
+  version: 1.0.0
+  contact:
+    name: PersonService Team
+
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+
+tags:
+  - name: Persons
+    description: Операции с сущностью Person
+
+paths:
+  /api/persons:
+    get:
+      tags:
+        - Persons
+      summary: Получить список всех людей
+      description: Возвращает коллекцию всех людей в системе
+      operationId: getAllPersons
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PersonDto'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - Persons
+      summary: Создать нового человека
+      description: Создаёт новую сущность Person с указанными данными
+      operationId: createPerson
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePersonDto'
+      responses:
+        '201':
+          description: Сущность успешно создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonDto'
+          headers:
+            Location:
+              description: URL созданной сущности
+              schema:
+                type: string
+                format: uri
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/persons/{id}:
+    get:
+      tags:
+        - Persons
+      summary: Получить человека по ID
+      description: Возвращает информацию о человеке по его уникальному идентификатору
+      operationId: getPersonById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Уникальный идентификатор человека (GUID)
+          schema:
+            type: string
+            format: uuid
+            example: '550e8400-e29b-41d4-a716-446655440000'
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonDto'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      tags:
+        - Persons
+      summary: Обновить данные человека
+      description: Обновляет информацию о человеке с указанным ID
+      operationId: updatePerson
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Уникальный идентификатор человека (GUID)
+          schema:
+            type: string
+            format: uuid
+            example: '550e8400-e29b-41d4-a716-446655440000'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePersonDto'
+      responses:
+        '200':
+          description: Сущность успешно обновлена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      tags:
+        - Persons
+      summary: Удалить человека
+      description: Удаляет сущность Person по её идентификатору
+      operationId: deletePerson
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Уникальный идентификатор человека (GUID)
+          schema:
+            type: string
+            format: uuid
+            example: '550e8400-e29b-41d4-a716-446655440000'
+      responses:
+        '200':
+          description: Сущность успешно удалена
+          content:
+            application/json:
+              schema:
+                type: boolean
+                description: true если удаление успешно
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    PersonDto:
+      type: object
+      description: DTO для представления данных о человеке
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Уникальный идентификатор (EntityId Value Object)
+          example: '550e8400-e29b-41d4-a716-446655440000'
+        firstName:
+          type: string
+          description: Имя (FirstName Value Object)
+          example: 'Иван'
+          minLength: 1
+          maxLength: 50
+        middleName:
+          type: string
+          nullable: true
+          description: Отчество (MiddleName Value Object)
+          example: 'Иванович'
+          maxLength: 50
+        lastName:
+          type: string
+          description: Фамилия (LastName Value Object)
+          example: 'Иванов'
+          minLength: 1
+          maxLength: 50
+        socialLink:
+          type: string
+          nullable: true
+          format: uri
+          description: Ссылка на профиль в социальной сети (SocialLinkValue Value Object)
+          example: 'https://vk.com/ivanov'
+          maxLength: 255
+        email:
+          type: string
+          nullable: true
+          description: Email (Email Value Object)
+          example: 'ivanov@example.com'
+          minLength: 5
+          maxLength: 25
+        phone:
+          type: string
+          nullable: true
+          description: Телефон (Phone Value Object) - только цифры
+          example: '89001234567'
+          minLength: 5
+          maxLength: 12
+      required:
+        - id
+        - firstName
+        - lastName
+        - phone
+
+    CreatePersonDto:
+      type: object
+      description: DTO для создания нового человека
+      properties:
+        firstName:
+          type: string
+          description: Имя (FirstName Value Object)
+          example: 'Иван'
+          minLength: 1
+          maxLength: 50
+        middleName:
+          type: string
+          nullable: true
+          description: Отчество (MiddleName Value Object)
+          example: 'Иванович'
+          maxLength: 50
+        lastName:
+          type: string
+          description: Фамилия (LastName Value Object)
+          example: 'Иванов'
+          minLength: 1
+          maxLength: 50
+        socialLink:
+          type: string
+          nullable: true
+          format: uri
+          description: Ссылка на профиль в социальной сети (SocialLinkValue Value Object)
+          example: 'https://vk.com/ivanov'
+          maxLength: 255
+        email:
+          type: string
+          nullable: true
+          description: Email (Email Value Object)
+          example: 'ivanov@example.com'
+          minLength: 5
+          maxLength: 25
+        phone:
+          type: string
+          nullable: true
+          description: Телефон (Phone Value Object) - только цифры
+          example: '89001234567'
+          minLength: 5
+          maxLength: 12
+      required:
+        - firstName
+        - lastName
+        - phone
+
+    UpdatePersonDto:
+      type: object
+      description: DTO для обновления данных человека
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Уникальный идентификатор (EntityId Value Object)
+          example: '550e8400-e29b-41d4-a716-446655440000'
+        firstName:
+          type: string
+          description: Имя (FirstName Value Object)
+          example: 'Иван'
+          minLength: 1
+          maxLength: 50
+        middleName:
+          type: string
+          nullable: true
+          description: Отчество (MiddleName Value Object)
+          example: 'Иванович'
+          maxLength: 50
+        lastName:
+          type: string
+          description: Фамилия (LastName Value Object)
+          example: 'Иванов'
+          minLength: 1
+          maxLength: 50
+        socialLink:
+          type: string
+          nullable: true
+          format: uri
+          description: Ссылка на профиль в социальной сети (SocialLinkValue Value Object)
+          example: 'https://vk.com/ivanov'
+          maxLength: 255
+        email:
+          type: string
+          nullable: true
+          description: Email (Email Value Object)
+          example: 'ivanov@example.com'
+          minLength: 5
+          maxLength: 25
+        phone:
+          type: string
+          nullable: true
+          description: Телефон (Phone Value Object) - только цифры
+          example: '89001234567'
+          minLength: 5
+          maxLength: 12
+      required:
+        - id
+        - firstName
+        - lastName
+        - phone
+
+    Error:
+      type: object
+      description: Объект ошибки
+      properties:
+        code:
+          type: string
+          description: Код ошибки
+        message:
+          type: string
+          description: Описание ошибки
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              error:
+                type: string
+          description: Детали ошибок валидации
+
+  responses:
+    BadRequest:
+      description: Неверный запрос (ошибки валидации)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Сущность не найдена
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalServerError:
+      description: Внутренняя ошибка сервера
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
