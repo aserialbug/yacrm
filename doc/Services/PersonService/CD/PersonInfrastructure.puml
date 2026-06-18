@@ -1,0 +1,80 @@
+@startuml Person Infrastructure Layer
+title PersonService - Инфраструктурный слой
+
+' ============================================
+' ИНФРАСТРУКТУРНЫЙ СЛОЙ (PersonService)
+' Зависит от прикладного и доменного слоёв
+' ============================================
+
+' DbContext для работы с PostgreSQL через Npgsql
+class PersonDbContext {
+    -string ConnectionString
+    +DbSet<Person> Persons {get; set;}
+    +Task<int> SaveChangesAsync()
+    +override protected void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    +override protected void OnModelCreating(ModelBuilder modelBuilder)
+}
+
+' Реализация репозитория с использованием DbContext
+class PersonRepository {
+    -PersonDbContext _context
+    +Task<Person?> GetByIdAsync(Guid id)
+    +Task<IEnumerable<Person>> GetAllAsync()
+    +Task<Person> CreateAsync(Person person)
+    +Task<Person> UpdateAsync(Person person)
+    +Task<bool> DeleteAsync(Guid id)
+    +Task<bool> ExistsAsync(Guid id)
+}
+
+' REST API контроллер для Person
+class PersonController {
+    -IPersonService _personService
+    +HttpGet("{id}") Task<IActionResult> GetPerson(Guid id)
+    +HttpGet() Task<IEnumerable<PersonDto>> GetAllPersons()
+    +HttpPost() Task<PersonDto> CreatePerson([FromBody] CreatePersonDto dto)
+    +HttpPut("{id}") Task<PersonDto> UpdatePerson(Guid id, [FromBody] UpdatePersonDto dto)
+    +HttpDelete("{id}") Task<bool> DeletePerson(Guid id)
+}
+
+' Точка входа приложения
+class Program {
+    +static void Main(string[] args)
+    +static void ConfigureServices(IServiceCollection services)
+    +static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+}
+
+' Связи
+PersonRepository ..|> IPersonRepository : реализует
+PersonRepository --> PersonDbContext : использует
+PersonController ..> PersonAppService : вызывает
+Program --> PersonController : регистрирует
+Program --> PersonDbContext : регистрирует
+
+note right of PersonDbContext
+  **Entity Framework Core:**
+  - Контекст данных для PostgreSQL
+  - Npgsql provider
+  - Fluent API маппинг
+end note
+
+note right of PersonRepository
+  **Repository Implementation:**
+  - Реализует IPersonRepository
+  - Использует EF Core для CRUD
+  - Трансформирует доменные объекты
+end note
+
+note right of PersonController
+  **ASP.NET Core Controller:**
+  - REST API endpoints
+  - Model binding
+  - Dependency injection
+end note
+
+' Стили
+skinparam class {
+    BackgroundColor White
+    BorderColor Black
+}
+
+@enduml
